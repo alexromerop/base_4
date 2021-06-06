@@ -56,9 +56,9 @@ http.createServer( (request, response) => {
 
 	if (request.url == "/recent"){
 
-	const NUM = db.collection("chat").estiamtedDocumentCount();
+	const estimated_count = chat_db.collection("chat").estimatedDocumentCount();
 
-	NUM.then( (count) => {
+	estimated_count.then( (count) => {
 	 console.log(count);
 
 	const MAX = 5;
@@ -77,6 +77,7 @@ http.createServer( (request, response) => {
 		response.end();
 	});
 
+	});
 	return;
 	}
 
@@ -101,7 +102,7 @@ http.createServer( (request, response) => {
 			});
 
 		});
-	});
+
 
 	response.end();
 
@@ -111,34 +112,32 @@ http.createServer( (request, response) => {
 if(request.url == "/history"){
         response.writeHead(200,{"Content-Type":"text/html"});
         let cursor = chat_db.collection("chat").find({},{
-            sort:{$natural:1}
+            sort:{ date: -1}
         });
-        
-        let chat = cursor.toArray();
-        let showText ="";
-        chat.then((data) =>{
-            
-            for(let i = 0; i<data.length;i++){
-                let ts = data[i].date;
-                ts = Number(ts);
 
-                let date = new Date(ts);
-                let dateText = date.getDay() + "/" + date.getMonth() + "/" + date.getFullYear() +" "+ 
-                date.getHours() + ":" + date.getMinutes()+ ":" +  date.getSeconds();
-                
-                showText = "<p>" + "[" +  dateText + "] - " + data[i].user + ": " + data[i].msg + "<p/>";
-                console.log(showText);
-                
-                response.write(showText);
+        let chat = cursor.toArray();
+        let show ="";
+        chat.then((data) =>{
+            for(let i = 0; i<data.length;i++){
+                let date = data[i].date;
+                date = new Date(date);
+
+                let showdate = date.getDate() + "/" + date.getMonth() + "/" + date.getFullYear() +" "+
+                date.getHours() + ":" + date.getMinutes();
+
+                show = "<p>" + "[" +  showdate + "] " + data[i].user + ": " + data[i].msg + "<p/>";
+
+                response.write(show);
             }
-            
+
             response.end();
+
         })
     }
 
 
 
-	public_files.serve(request, response); M
+	public_files.serve(request, response); 
 
 
 }).listen(6891);
